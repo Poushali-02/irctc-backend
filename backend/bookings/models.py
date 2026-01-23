@@ -15,9 +15,5 @@ class Booking(models.Model):
         db_table = 'booking'
         ordering = ['-booking_time']
     
-    class Meta:
-        db_table = 'booking'
-        ordering = ['-booking_time']
-    
     def __str__(self):
         return f"Booking {self.id} by {self.user.email} on {self.train.train_number}"

@@ -15,7 +15,7 @@ class TrainCreateView(generics.CreateAPIView):
     queryset = Train.objects.all()
     serializer_class = TrainDetailSerializer
     
-    # anyone can create an account
+    # admin can add train details
     permission_classes = [IsAdminUser]
     
     def create(self, request, *args, **kwargs):
