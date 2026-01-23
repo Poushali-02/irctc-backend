@@ -3,9 +3,17 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from common.mongo import DATABASE
+
 from rest_framework import status
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+CLIENT=MongoClient(os.getenv("MONGO_URI"))
+DATABASE=CLIENT[os.getenv("MONGO_DB_NAME")]
+
 
 @extend_schema(tags=['Analytics'])
 class AnalyticsView(APIView):

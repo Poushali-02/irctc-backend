@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'trains',
     'bookings',
     'analytics',
-    'common'
 ]
 
 MIDDLEWARE = [

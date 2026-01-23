@@ -8,6 +8,14 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from .models import Train
 from .serializers import TrainDetailSerializer
 
+from pymongo import MongoClient
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+CLIENT=MongoClient(os.getenv("MONGO_URI"))
+DATABASE=CLIENT[os.getenv("MONGO_DB_NAME")]
+
 # view for creating train
 
 @extend_schema(tags=['Trains'])
@@ -16,7 +24,7 @@ class TrainCreateView(generics.CreateAPIView):
     serializer_class = TrainDetailSerializer
     
     # admin can add train details
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminUser, IsAuthenticated]
     
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -107,7 +115,6 @@ class TrainSearchView(generics.ListAPIView):
     def list(self, request, *args, **kwargs):
         import time
         from datetime import datetime
-        from common.mongo import DATABASE
         
         start_time = time.time()
         response = super().list(request, *args, **kwargs)
