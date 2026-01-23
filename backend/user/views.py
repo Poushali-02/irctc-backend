@@ -6,11 +6,13 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
+from drf_spectacular.utils import extend_schema
 
 from .models import User
 from .serializers import RegisterSerializer, LoginSerializer
 
 # view for register
+@extend_schema(tags=['Authentication'])
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer 
@@ -40,6 +42,7 @@ class RegisterView(generics.CreateAPIView):
         
         
 # view for login
+@extend_schema(tags=['Authentication'])
 class LoginView(generics.CreateAPIView):
     serializer_class = LoginSerializer
     
