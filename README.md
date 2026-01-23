@@ -173,7 +173,7 @@ All application APIs are namespaced under `/api/`.
         "password": "strongpassword123"
     }
     ```
-
+- ![register request](docs/images/requests/register.png)
 
 - Response example:
 
@@ -188,7 +188,7 @@ All application APIs are namespaced under `/api/`.
         "refresh": "<refresh_token>"
     }
     ```
-
+- ![resgister response](docs/images/responses/register.png)
 **Login**
 
 - Endpoint: `POST /api/login/`
@@ -202,6 +202,7 @@ All application APIs are namespaced under `/api/`.
         "password": "strongpassword123"
     }
     ```
+- ![login request](docs/images/requests/login.png)
 
 - Response example:
 
@@ -211,8 +212,10 @@ All application APIs are namespaced under `/api/`.
         "refresh": "<refresh_token>"
     }
     ```
+- ![login response](docs/images/responses/login.png)
 
 All other APIs require the `Authorization: Bearer <access_token>` header.
+![alt text](docs/images/image.png)
 
 
 ## Train APIs
@@ -239,6 +242,7 @@ Host: localhost:8000
 Authorization: Bearer <access_token>
 ```
 
+![train search requests](docs/images/requests/train_search.png)
 Example paginated response:
 
 ```json
@@ -261,31 +265,14 @@ Example paginated response:
 	]
 }
 ```
+![train search responses](docs/images/responses/train_search.png)
 
 Each search request is logged into MongoDB with details such as endpoint, query parameters, user,
 execution time, and result count.
 
-**Create or update train details (admin only)**
+**Mongo db document**
 
-- Endpoint: `POST /api/trains/`
-- Authentication: Required, admin user only
-- Description: Create a new train entry. The implementation can also support updates.
-
-Request body example:
-
-```json
-{
-	"train_number": "12951",
-	"name": "Mumbai Rajdhani Express",
-	"source": "Mumbai Central",
-	"destination": "New Delhi",
-	"departure_time": "2026-01-25T16:35:00Z",
-	"arrival_time": "2026-01-26T08:35:00Z",
-	"total_seats": 1000,
-	"available_seats": 850
-}
-```
-
+![mongo-db](docs/images/mongo-db.png)
 
 ## Booking APIs
 
@@ -304,25 +291,26 @@ Request body example:
 	"seats": 2
 }
 ```
+![booking request](docs/images/requests/booking.png)
 
 Response example:
 
 ```json
 {
 	"id": 10,
-	"user": 1,
 	"train": 1,
-	"seats": 2,
-	"booking_time": "2026-01-23T10:30:00Z",
-	"confirmed": true
+	"seats": 2
 }
 ```
+![booking response](docs/images/responses/booking.png)
 
 **List bookings of the logged-in user**
 
 - Endpoint: `GET /api/bookings/my/`
 - Authentication: Required (authenticated user)
 - Description: Returns all bookings made by the current user, including train details.
+
+![my booking request](docs/images/requests/my-booking.png)
 
 Example response:
 
@@ -343,7 +331,7 @@ Example response:
 	}
 ]
 ```
-
+![my booking response](docs/images/responses/my-booking.png)
 
 ## Analytics API
 
@@ -353,6 +341,8 @@ Example response:
 - Authentication: Typically restricted to admin users (can be configured in the view permissions).
 - Description: Aggregates MongoDB logs of train search requests and returns the top five most
 	searched `(source, destination)` route combinations.
+
+![analytics request](docs/images/requests/analytics.png)
 
 Example response:
 
@@ -370,6 +360,7 @@ Example response:
 	}
 ]
 ```
+![analytics response](docs/images/responses/analytics.png)
 
 # Admins Only
 ## Adding Trains API
@@ -392,7 +383,7 @@ Request body example:
   "available_seats": 420
 }
 ``` 
-
+![train details adding request](docs/images/requests/create-train.png)
 Example Response:
 ```json
 {
@@ -409,6 +400,30 @@ Example Response:
   }
 }
 ```
+![train details adding response](docs/images/responses/create-train.png)
+
+## MongoDB Logging
+
+MongoDB is used to store API analytics logs such as train search requests.
+
+Each search request stores:
+- endpoint
+- method
+- timestamp
+- timestamp_iso
+- user_id
+- user_email
+- is_staff
+- query_params
+- ip_address
+- user_agent
+- status_code
+- results_count
+- execution_time
+
+### Sample Document
+See `docs/mongo_samples/api_logs_sample.json`
+
 
 Testing and Verification
 ------------------------

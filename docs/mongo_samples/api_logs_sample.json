@@ -1,0 +1,19 @@
+{
+  "_id": "demo_object_id_1234",
+  "endpoint": "/api/trains/search/",
+  "method": "GET",
+  "timestamp": 1705935312,
+  "timestamp_iso": "2026-01-22T14:35:12Z",
+  "user": {
+    "id": 12,
+    "email": "user@example.com",
+    "is_staff": false
+  },
+  "query_params": {
+    "source": "DEL",
+    "destination": "BOM"
+  },
+  "status_code": 200,
+  "results_count": 5,
+  "execution_time_ms": 142
+}
