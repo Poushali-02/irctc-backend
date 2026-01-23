@@ -101,6 +101,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'PAGE_SIZE': 10
 }
 SPECTACULAR_SETTINGS = {
     'TITLE': 'IRCTC Mini Backend',
@@ -158,7 +159,7 @@ AUTHENTICATION_BACKENDS = [
 
 # Simple JWT Settings
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=12),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
