@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from django.db import transaction
 from .models import Booking
-from .serializers import BookingDetailSerializer
+from .serializers import BookingDetailSerializer, BookingListSerializer
 from trains.models import Train
 
 @extend_schema(tags=['Bookings'])
@@ -53,7 +53,7 @@ class BookingsCreateView(generics.CreateAPIView):
 @extend_schema(tags=['Bookings'])
 class BookingsListView(generics.ListAPIView):
     queryset = Booking.objects.all()
-    serializer_class = BookingDetailSerializer
+    serializer_class = BookingListSerializer
     
     # user needs to be authenticated
     permission_classes = [IsAuthenticated]
