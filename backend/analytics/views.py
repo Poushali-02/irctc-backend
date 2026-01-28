@@ -65,8 +65,8 @@ class AnalyticsView(APIView):
                 {
                     "$project":{
                         "_id": 0,
-                        "source": "$_id.source",
-                        "destination": "$_id.destination",
+                        "source": {"$arrayElemAt": ["$_id.source", 0]},
+                        "destination": {"$arrayElemAt": ["$_id.destination", 0]},
                         "search_count": 1
                     }
                 }
