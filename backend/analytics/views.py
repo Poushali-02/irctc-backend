@@ -59,8 +59,11 @@ class AnalyticsView(APIView):
                 {
                     "$sort": {"search_count": -1} # descending order
                 },
+                {    
+                    "$skip": 5, # offset
+                },
                 {
-                    "$limit": 5 # top 5 most searched
+                    "$limit": 5 # limit
                 },
                 {
                     "$project":{

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User
+from bookings.models import Booking
 
 class RegisterSerializer(serializers.ModelSerializer):
     """
@@ -28,3 +29,9 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True, min_length=6)
     
     
+class UserBooked(serializers.ModelSerializer):
+    
+    class Meta:
+        model = User
+        fields = ['id', 'name', 'email']
+

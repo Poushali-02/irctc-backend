@@ -62,3 +62,11 @@ class BookingsListView(generics.ListAPIView):
         return Booking.objects.filter(
             user=self.request.user
         ).select_related("train", "user")
+        
+@extend_schema(tags=['Bookings'])
+class BookingsAllListView(generics.ListAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingListSerializer
+    
+    def get_queryset(self):
+        return Booking.objects.select_related("train", "user")

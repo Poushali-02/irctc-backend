@@ -9,7 +9,9 @@ from django.contrib.auth import authenticate
 from drf_spectacular.utils import extend_schema
 
 from .models import User
-from .serializers import RegisterSerializer, LoginSerializer
+from bookings.models import Booking
+from bookings.serializers import BookingListSerializer
+from .serializers import RegisterSerializer, LoginSerializer, UserBooked
 
 # view for register
 @extend_schema(tags=['Authentication'])
@@ -70,3 +72,11 @@ class LoginView(generics.CreateAPIView):
             status=status.HTTP_200_OK
         )
         
+@extend_schema(tags=['Users'])
+class UsersBooked(generics.ListAPIView):
+    serializer_class=UserBooked
+    
+    def get_queryset(self):
+        users = Booking.objects.values_list("user", flat=True)
+        return User.objects.filter(id__in=users)
+    
