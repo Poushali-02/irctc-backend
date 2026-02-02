@@ -21,29 +21,40 @@ class BookingsCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        with transaction.atomic():
+        with transaction.atomic(): # either everything or nothing
             train = serializer.validated_data['train']
+            
+            # lock the train
             train = Train.objects.select_for_update().get(pk=train.pk)
+            base_price = train.price
             
             seats_booked = serializer.validated_data['seats_booked']
             
+            # check seats
             if train.available_seats < seats_booked:
                 return Response(
                     {"error": f"Only {train.available_seats} seats available, you requested {seats_booked}"},
                     status=status.HTTP_400_BAD_REQUEST
                 )
+            
+            # ticket price
+            surge_charge = base_price * 0.25 if train.available_seats / train.total_seats < 0.2 else 0
                 
             train.available_seats -= seats_booked
             train.save()
             
             booking = serializer.save(user=self.request.user)
             
+            booking.total_price = (base_price + surge_charge) * seats_booked
+            booking.save()
+            
             return Response (
                 {
                     "booking":{
                         "id": booking.id,
                         "train": booking.train.id,
-                        "seats_booked": booking.seats_booked
+                        "seats_booked": booking.seats_booked,
+                        "price": booking.total_price
                     }
                 },
                 status=status.HTTP_201_CREATED

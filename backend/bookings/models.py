@@ -10,6 +10,7 @@ class Booking(models.Model):
     seats_booked = models.PositiveIntegerField()
     booking_time = models.DateTimeField(auto_now_add=True)
     confirmed = models.BooleanField(default=True)
+    total_price = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     
     class Meta:
         db_table = 'booking'

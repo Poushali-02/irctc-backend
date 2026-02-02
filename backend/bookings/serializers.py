@@ -29,9 +29,9 @@ class BookingDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Booking
         fields = [
-            'id','train', 'seats_booked', 'booking_time', 'confirmed'
+            'id','train', 'seats_booked', 'booking_time', 'confirmed', 'total_price'
         ]
-        read_only_fields = ['id', 'booking_time', 'confirmed']
+        read_only_fields = ['id', 'booking_time', 'confirmed', 'total_price']
         
     def validate(self, data):
         # seat available or not

@@ -11,6 +11,7 @@ class Train(models.Model):
     arrival_time = models.DateTimeField()
     total_seats = models.PositiveIntegerField()
     available_seats = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=7, decimal_places=2, default=0)
     
     class Meta:
         db_table = 'train'
