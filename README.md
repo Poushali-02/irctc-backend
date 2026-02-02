@@ -27,6 +27,38 @@ Tech Stack
 - drf-spectacular (OpenAPI/Swagger documentation)
 
 
+Key Features & Architecture
+---------------------------
+
+### 1. Concurrency & Data Integrity
+- **Pessimistic Locking**: Uses `SELECT FOR UPDATE` in MySQL to lock train rows during bookings
+- **Atomic Transactions**: Ensures that seat availability and booking creation happen together or not at all
+- **Race Condition Prevention**: Prevents double-booking of the same seat
+
+### 2. Dynamic Pricing
+- **Base Price**: Each train has a configurable base price
+- **Surge Charging**: 25% surcharge applied when available seats drop below 20% of total capacity
+- **Price Persistence**: Booking price is stored at the moment of purchase for historical accuracy
+
+### 3. MongoDB Analytics & Logging
+- **Automatic Request Logging**: Every train search is logged to MongoDB with:
+  - Endpoint, method, timestamp
+  - User information (id, email, is_staff)
+  - Query parameters and filters
+  - Execution time and result count
+  - IP address and user agent
+- **Aggregation Pipeline**: MongoDB aggregation pipeline groups searches by route and counts occurrences
+
+### 4. Database Indexing
+- **Composite Index**: Created on (source, destination) fields in Train table for fast search queries
+- **Unique Index**: Train number is indexed for quick lookups
+
+### 5. Authentication & Authorization
+- **JWT Tokens**: Access tokens for API requests, Refresh tokens for token renewal
+- **Role-Based Access Control**: Admin-only endpoints for train creation and management
+- **Permission Classes**: Fine-grained permission control using DRF permission classes
+
+
 Project Structure
 -----------------
 
@@ -281,14 +313,20 @@ execution time, and result count.
 - Endpoint: `POST /api/bookings/`
 - Authentication: Required (authenticated user)
 - Description: Create a booking after validating seat availability and deducting available seats
-	atomically.
+	atomically. Calculates dynamic pricing with surge charging.
+
+Key Features:
+- **Pessimistic Locking**: Uses `select_for_update()` to lock train rows and prevent race conditions
+- **Atomic Transaction**: Ensures either all operations complete or none (data integrity)
+- **Dynamic Pricing**: Base price × seats booked
+- **Surge Charging**: Adds 25% surcharge when available seats ≤ 20% of total seats
 
 Request body example:
 
 ```json
 {
 	"train": 1,
-	"seats": 2
+	"seats_booked": 2
 }
 ```
 ![booking request](docs/images/requests/booking.png)
@@ -297,9 +335,12 @@ Response example:
 
 ```json
 {
-	"id": 10,
-	"train": 1,
-	"seats": 2
+	"booking": {
+		"id": 10,
+		"train": 1,
+		"seats_booked": 2,
+		"price": 1500.50
+	}
 }
 ```
 ![booking response](docs/images/responses/booking.png)
@@ -333,14 +374,47 @@ Example response:
 ```
 ![my booking response](docs/images/responses/my-booking.png)
 
+**List all bookings (Admin)**
+
+- Endpoint: `GET /api/bookings/all/`
+- Authentication: Required (authenticated user)
+- Description: Returns all bookings in the system with train and user details (typically admin view).
+
+Example response:
+
+```json
+[
+	{
+		"id": 1,
+		"train": {
+			"id": 1,
+			"train_number": "12951",
+			"name": "Mumbai Rajdhani Express",
+			"source": "Mumbai Central",
+			"destination": "New Delhi"
+		},
+		"seats": 2,
+		"booking_time": "2026-01-23T10:30:00Z",
+		"confirmed": true
+	}
+]
+```
+
 ## Analytics API
 
 **Top searched routes**
 
-- Endpoint: `GET /api/analytics/top-routes/`
-- Authentication: Typically restricted to admin users (can be configured in the view permissions).
+- Endpoint: `GET /api/analytics/`
+- Authentication: Required (authenticated user)
 - Description: Aggregates MongoDB logs of train search requests and returns the top five most
-	searched `(source, destination)` route combinations.
+	searched `(source, destination)` route combinations using MongoDB aggregation pipeline.
+
+MongoDB Aggregation Pipeline:
+- Filters for `/trains/search` endpoints only
+- Extracts source and destination from query parameters
+- Groups by (source, destination) pair
+- Counts occurrences and sorts in descending order
+- Skips first 5 results and limits to 5 more
 
 ![analytics request](docs/images/requests/analytics.png)
 
@@ -362,13 +436,36 @@ Example response:
 ```
 ![analytics response](docs/images/responses/analytics.png)
 
+# Additional Features
+
+## User APIs
+
+**Get all users with bookings**
+
+- Endpoint: `GET /api/users/booked/`
+- Authentication: Required (authenticated user)
+- Description: Returns list of all users who have made at least one booking.
+
+Example response:
+
+```json
+[
+	{
+		"id": 1,
+		"name": "Test User",
+		"email": "user@example.com",
+		"is_staff": false
+	}
+]
+```
+
 # Admins Only
 ## Adding Trains API
 **Add trains with details**
 - Endpoint: `POST /api/trains/`
 - Authentication: Required (authenticated User)
 - Admin Access: Required (User should be admin)
-- Description: Creates and returns a comprehensive train route.
+- Description: Creates and returns a comprehensive train route with pricing information.
 
 Request body example:
 ```json

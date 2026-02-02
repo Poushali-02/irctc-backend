@@ -8,10 +8,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from drf_spectacular.utils import extend_schema
 
+from rest_framework.permissions import IsAuthenticated
 from .models import User
 from bookings.models import Booking
-from bookings.serializers import BookingListSerializer
-from .serializers import RegisterSerializer, LoginSerializer, UserBooked
+from .serializers import RegisterSerializer, LoginSerializer, UserBooked, Activity
+
 
 # view for register
 @extend_schema(tags=['Authentication'])
@@ -80,3 +81,12 @@ class UsersBooked(generics.ListAPIView):
         users = Booking.objects.values_list("user", flat=True)
         return User.objects.filter(id__in=users)
     
+    
+@extend_schema(tags=['Users'])
+class Activity(generics.ListAPIView):
+    serializer_class = Activity
+    permission_classes=[IsAuthenticated]
+    
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
+        

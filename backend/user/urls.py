@@ -1,10 +1,11 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .views import RegisterView, LoginView, UsersBooked
+from .views import RegisterView, LoginView, UsersBooked, Activity
 from django.urls import path
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name='register'),
     path("login/", LoginView.as_view(), name='login'),
-    path("booked-users/", UsersBooked.as_view(), name='booked users')
+    path("booked-users/", UsersBooked.as_view(), name='booked users'),
+    path("activity", Activity.as_view(), name="Activities")
 ]
 
